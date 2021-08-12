@@ -38,8 +38,7 @@ public class CockroachdbCopyApplication {
     @Bean
     ApplicationRunner runner() {
         return args -> {
-            String csv = "8a3d70a3-d70a-4000-8000-00000000001d,denver,Hannah,400 Broad St,0987654321\n";
-            csv += "9eb851eb-851e-4800-8000-00000000001e,denver,Carl,53 W 23rd St,5678901234\n";
+            String csv = "8a3d70a3-d70a-4000-8000-00000000001d,seattle,Hannah,400 Broad St,0987654321\n";
 
             copy("COPY users FROM STDIN DELIMITER ',' NULL ''", csv);
             copy("COPY users FROM STDIN CSV", csv);
@@ -53,9 +52,9 @@ public class CockroachdbCopyApplication {
             LOGGER.info("Inserting data: {}", data);
 
             CopyManager copyManager = connection.unwrap(PGConnection.class).getCopyAPI();
-            long count = copyManager.copyIn(sql, new StringReader(data), 32768);
+            long count = copyManager.copyIn(sql, new StringReader(data), 10);
             LOGGER.info("Inserted {} rows", count);
-            Assert.state(count == 2, "Expected 2 rows to be inserted but was actually " + count);
+            Assert.state(count == 1, "Expected 1 rows to be inserted but was actually " + count);
         }
     }
 
