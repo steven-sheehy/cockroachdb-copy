@@ -14,6 +14,7 @@ import org.postgresql.copy.CopyManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -26,6 +27,9 @@ import org.springframework.util.Assert;
 public class CockroachdbCopyApplication {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CockroachdbCopyApplication.class);
+
+    @Value("${bufferSize:32768}")
+    private int bufferSize;
 
     @Autowired
     private DataSource dataSource;
@@ -52,8 +56,8 @@ public class CockroachdbCopyApplication {
             LOGGER.info("Inserting data: {}", data);
 
             CopyManager copyManager = connection.unwrap(PGConnection.class).getCopyAPI();
-            long count = copyManager.copyIn(sql, new StringReader(data), 10);
-            LOGGER.info("Inserted {} rows", count);
+            long count = copyManager.copyIn(sql, new StringReader(data), bufferSize);
+            LOGGER.info("Inserted {} rows with buffer size {}", count, bufferSize);
             Assert.state(count == 1, "Expected 1 rows to be inserted but was actually " + count);
         }
     }
